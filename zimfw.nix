@@ -110,7 +110,7 @@ in {
     home.file."${relToDotDir ".zimrc"}".text = concatStringsSep "\n"
       ((map (zmodule: "zmodule ${zmodule}") cfg.zimfw.zmodules));
     home.activation.zimfw = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      zsh -c "export ZIM_HOME='${cfg.zimfw.homeDir}' && source ${pkgs.zimfw}/zimfw.zsh init -q && zimfw install && zimfw compile"
+      ${pkgs.zsh}/bin/zsh -c "export ZIM_HOME='${cfg.zimfw.homeDir}' && source ${pkgs.zimfw}/zimfw.zsh init -q && zimfw install && zimfw compile"
     '';
   };
 }
