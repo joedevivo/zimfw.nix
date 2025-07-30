@@ -1,7 +1,14 @@
 home-manager:
-let extendedLib = home-manager.lib;
+let
+  extendedLib = home-manager.lib;
 
-in { config, lib, pkgs, ... }:
+in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 with extendedLib;
 let
@@ -10,10 +17,10 @@ let
 
   ## copied relToDotDir from ./zsh.nix. Probably should import it, but I don't
   ## know how.
-  relToDotDir = file:
-    (optionalString (cfg.dotDir != null) (cfg.dotDir + "/")) + file;
+  relToDotDir = file: (optionalString (cfg.dotDir != null) (cfg.dotDir + "/")) + file;
 
-in {
+in
+{
   meta.maintainers = [ maintainers.joedevivo ];
 
   options = {
@@ -30,10 +37,7 @@ in {
       };
 
       configFile = mkOption {
-        default = if cfg.dotDir != null then
-          "$HOME/${cfg.dotDir}/.zimrc"
-        else
-          "$HOME/.zimrc";
+        default = if cfg.dotDir != null then "${cfg.dotDir}/.zimrc" else "$HOME/.zimrc";
         type = types.str;
         description = ''
           Location of zimrc file
@@ -58,7 +62,13 @@ in {
       };
 
       zmodules = mkOption {
-        default = [ "environment" "git" "input" "termtitle" "utility" ];
+        default = [
+          "environment"
+          "git"
+          "input"
+          "termtitle"
+          "utility"
+        ];
         example = [
           "environment"
           "git"
@@ -85,7 +95,7 @@ in {
       ZIM_HOME = cfg.zimfw.homeDir;
       ZIM_CONFIG_FILE = cfg.zimfw.configFile;
     };
-    programs.zsh.initExtra = concatStringsSep "\n" ([
+    programs.zsh.initContent = concatStringsSep "\n" ([
       (optionalString (cfg.zimfw.degit) ''
         zstyle ':zim:zmodule' use 'degit'
       '')
@@ -107,8 +117,9 @@ in {
         fi
       ''
     ]);
-    home.file."${relToDotDir ".zimrc"}".text = concatStringsSep "\n"
-      ((map (zmodule: "zmodule ${zmodule}") cfg.zimfw.zmodules));
+    home.file."${relToDotDir ".zimrc"}".text = concatStringsSep "\n" (
+      (map (zmodule: "zmodule ${zmodule}") cfg.zimfw.zmodules)
+    );
     home.activation.zimfw = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       ${pkgs.zsh}/bin/zsh -c "export ZIM_HOME='${cfg.zimfw.homeDir}' && source ${pkgs.zimfw}/zimfw.zsh init -q && zimfw install && zimfw compile"
     '';
